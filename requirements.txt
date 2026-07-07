@@ -1,0 +1,10 @@
+Flask
+Pillow
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+tensorflow==2.21.0
+protobuf>=6.31.1,<7
+gunicorn

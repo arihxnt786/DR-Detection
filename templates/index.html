@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetinaScan — Diabetic Retinopathy Detection</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header class="topbar reveal" style="--d:0s">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/>
+          <circle cx="12" cy="12" r="3.2" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">RetinaScan</span>
+    </div>
+    <div class="topbar-meta">
+      <span class="dot"></span>
+      <span>Model v1 &middot; CNN classifier</span>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <section class="intro">
+      <p class="eyebrow reveal" style="--d:0s">Diabetic Retinopathy Screening</p>
+      <h1 class="reveal" style="--d:0.08s">Upload a retinal image.<br>See the severity in seconds.</h1>
+      <p class="lede reveal" style="--d:0.16s">A trained classifier reads the fundus image and places it on the diabetic retinopathy severity spectrum — from no signs of disease to proliferative DR. Diabetic retinopathy is a leading cause of preventable blindness, and early detection through screening can significantly reduce vision loss.</p>
+    </section>
+
+    <section class="awareness-banner reveal" style="--d:0.2s">
+      <div class="awareness-stat">
+        <span class="stat-number">1 in 3</span>
+        <span class="stat-label">people with diabetes show signs of DR</span>
+      </div>
+      <div class="awareness-divider"></div>
+      <div class="awareness-stat">
+        <span class="stat-number">90%</span>
+        <span class="stat-label">of vision loss from DR is preventable with early detection</span>
+      </div>
+      <div class="awareness-divider"></div>
+      <div class="awareness-stat">
+        <span class="stat-number">Often none</span>
+        <span class="stat-label">symptoms present in early-stage DR</span>
+      </div>
+    </section>
+
+    <section class="scanner-zone reveal" style="--d:0.26s">
+
+      <form id="scan-form" action="/upload" method="POST" enctype="multipart/form-data">
+
+        <div class="scanner" id="scanner" tabindex="0" role="button" aria-label="Upload a retinal image">
+          <div class="scanner-ring"></div>
+          <div class="scanner-ring ring-2"></div>
+
+          <div class="scanner-inner" id="scanner-inner">
+            <img id="preview-img" class="preview-img" alt="" />
+            <div class="placeholder" id="placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path d="M12 16V4M12 4L7 9M12 4L17 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 16V18C4 19.1 4.9 20 6 20H18C19.1 20 20 19.1 20 18V16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p>Drop a fundus image<br>or click to browse</p>
+            </div>
+            <div class="scanline" id="scanline"></div>
+          </div>
+
+          <input type="file" id="file-input" name="image" accept="image/png, image/jpeg" hidden>
+        </div>
+
+        <div class="scanner-controls">
+          <button type="submit" id="analyze-btn" class="btn-primary" disabled>
+            <span class="btn-label">Analyze image</span>
+            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" id="reset-btn" class="btn-ghost" hidden>Choose a different image</button>
+        </div>
+
+      </form>
+
+      <aside class="legend">
+        <p class="legend-title">Severity spectrum</p>
+        <ol class="legend-list">
+          <li><span class="swatch s0"></span>No DR</li>
+          <li><span class="swatch s1"></span>Mild</li>
+          <li><span class="swatch s2"></span>Moderate</li>
+          <li><span class="swatch s3"></span>Severe</li>
+          <li><span class="swatch s4"></span>Proliferative DR</li>
+        </ol>
+      </aside>
+
+    </section>
+
+    {% if recent_predictions %}
+    <section class="recent-scans reveal" style="--d:0.32s">
+      <p class="legend-title">Recent scans</p>
+      <div class="recent-scans-row">
+        {% for p in recent_predictions %}
+        <div class="recent-scan-card">
+          <div class="recent-scan-thumb" style="border-color: {{ p.grade_color }};">
+            <img src="{{ url_for('static', filename='uploads/' + p.filename) }}" alt="">
+          </div>
+          <span class="recent-scan-label">{{ p.predicted_class.replace('_', ' ') }}</span>
+          <span class="recent-scan-pct">{{ p.confidence }}%</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <p class="disclaimer reveal" style="--d:0.4s">For educational and research use only — not a substitute for clinical diagnosis.</p>
+
+  </main>
+
+<script>
+  // ============================================
+  // Three.js — ambient particle sphere background
+  // ============================================
+  (function initParticleSphere() {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 9;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const COUNT = 1400;
+    const positions = new Float32Array(COUNT * 3);
+    const radius = 4.6;
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+    for (let i = 0; i < COUNT; i++) {
+      const y = 1 - (i / (COUNT - 1)) * 2;
+      const r = Math.sqrt(1 - y * y);
+      const theta = goldenAngle * i;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
+      positions[i * 3] = x * radius;
+      positions[i * 3 + 1] = y * radius;
+      positions[i * 3 + 2] = z * radius;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+      color: 0x5B8DEF,
+      size: 0.045,
+      transparent: true,
+      opacity: 0.55,
+      sizeAttenuation: true
+    });
+
+    const sphere = new THREE.Points(geometry, material);
+    scene.add(sphere);
+
+    const innerGeo = new THREE.BufferGeometry();
+    const innerCount = 500;
+    const innerPositions = new Float32Array(innerCount * 3);
+    const innerRadius = 3.1;
+    for (let i = 0; i < innerCount; i++) {
+      const y = 1 - (i / (innerCount - 1)) * 2;
+      const r = Math.sqrt(1 - y * y);
+      const theta = goldenAngle * i * 1.7;
+      innerPositions[i * 3] = Math.cos(theta) * r * innerRadius;
+      innerPositions[i * 3 + 1] = y * innerRadius;
+      innerPositions[i * 3 + 2] = Math.sin(theta) * r * innerRadius;
+    }
+    innerGeo.setAttribute('position', new THREE.BufferAttribute(innerPositions, 3));
+    const innerMaterial = new THREE.PointsMaterial({
+      color: 0x3DDC97,
+      size: 0.035,
+      transparent: true,
+      opacity: 0.35,
+      sizeAttenuation: true
+    });
+    const innerSphere = new THREE.Points(innerGeo, innerMaterial);
+    scene.add(innerSphere);
+
+    let targetX = 0, targetY = 0;
+    window.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 0.6;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 0.6;
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (prefersReduced) {
+        renderer.render(scene, camera);
+        return;
+      }
+      sphere.rotation.y += 0.0009;
+      sphere.rotation.x += 0.0002;
+      innerSphere.rotation.y -= 0.0006;
+      innerSphere.rotation.x += 0.0003;
+
+      camera.position.x += (targetX - camera.position.x) * 0.02;
+      camera.position.y += (-targetY - camera.position.y) * 0.02;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+
+  // ============================================
+  // Scroll/load reveal animation
+  // ============================================
+  document.querySelectorAll('.reveal').forEach((el) => {
+    const delay = el.style.getPropertyValue('--d') || '0s';
+    el.style.transitionDelay = delay;
+  });
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+  });
+
+  const scanner = document.getElementById('scanner');
+  const fileInput = document.getElementById('file-input');
+  const previewImg = document.getElementById('preview-img');
+  const placeholder = document.getElementById('placeholder');
+  const analyzeBtn = document.getElementById('analyze-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const scanForm = document.getElementById('scan-form');
+  const scannerInner = document.getElementById('scanner-inner');
+
+  function openPicker() { fileInput.click(); }
+  scanner.addEventListener('click', () => { if (!previewImg.classList.contains('show')) openPicker(); });
+  scanner.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openPicker(); });
+
+  ['dragenter', 'dragover'].forEach(evt =>
+    scanner.addEventListener(evt, (e) => { e.preventDefault(); scanner.classList.add('drag'); })
+  );
+  ['dragleave', 'drop'].forEach(evt =>
+    scanner.addEventListener(evt, (e) => { e.preventDefault(); scanner.classList.remove('drag'); })
+  );
+  scanner.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      previewImg.classList.add('show');
+      placeholder.classList.add('hide');
+      analyzeBtn.disabled = false;
+      resetBtn.hidden = false;
+    };
+    reader.readAsDataURL(file);
+
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+  }
+
+  resetBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    previewImg.classList.remove('show');
+    previewImg.src = '';
+    placeholder.classList.remove('hide');
+    analyzeBtn.disabled = true;
+    resetBtn.hidden = true;
+    fileInput.value = '';
+  });
+
+  scanForm.addEventListener('submit', () => {
+    scannerInner.classList.add('analyzing');
+    analyzeBtn.disabled = true;
+    analyzeBtn.querySelector('.btn-label').textContent = 'Analyzing…';
+  });
+</script>
+
+</body>
+</html>
