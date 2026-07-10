@@ -130,8 +130,3 @@ This application is built for **educational and research purposes only**. It is 
 
 ---
 
-## Team
-
-Group project developed under faculty supervision at Jaypee Institute of Information Technology (JIIT), Noida, 2025.
-
-*(Add team member names and supervisor name here.)*
