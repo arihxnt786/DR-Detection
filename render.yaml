@@ -1,10 +1,9 @@
 services:
   - type: web
-    name: dr-detection
-    runtime: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --workers 1 --timeout 180
+    name: retinascan-dr-detection
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --timeout 120 --workers 1 --threads 2"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.13.5
+        value: 3.13.0
