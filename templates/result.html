@@ -98,9 +98,6 @@
   </main>
 
 <script>
-  // ============================================
-  // Three.js — same ambient particle sphere as index.html
-  // ============================================
   (function initParticleSphere() {
     const canvas = document.getElementById('bg-canvas');
     if (!canvas || typeof THREE === 'undefined') return;
@@ -182,9 +179,6 @@
     animate();
   })();
 
-  // ============================================
-  // Reveal animation on load
-  // ============================================
   document.querySelectorAll('.reveal').forEach((el) => {
     const delay = el.style.getPropertyValue('--d') || '0s';
     el.style.transitionDelay = delay;
@@ -193,9 +187,6 @@
     document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
   });
 
-  // ============================================
-  // Position the spectrum marker based on predicted grade (0-4)
-  // ============================================
   const marker = document.getElementById('spectrum-marker');
   if (marker) {
     const index = parseInt(marker.dataset.index, 10);
@@ -205,9 +196,6 @@
     });
   }
 
-  // ============================================
-  // Animate confidence bars from 0 to their actual width
-  // ============================================
   window.addEventListener('load', () => {
     document.querySelectorAll('.bar-fill').forEach((bar) => {
       const pct = bar.dataset.pct;

@@ -127,9 +127,6 @@
   </main>
 
 <script>
-  // ============================================
-  // Three.js — ambient particle sphere background
-  // ============================================
   (function initParticleSphere() {
     const canvas = document.getElementById('bg-canvas');
     if (!canvas || typeof THREE === 'undefined') return;
@@ -229,9 +226,6 @@
     animate();
   })();
 
-  // ============================================
-  // Scroll/load reveal animation
-  // ============================================
   document.querySelectorAll('.reveal').forEach((el) => {
     const delay = el.style.getPropertyValue('--d') || '0s';
     el.style.transitionDelay = delay;

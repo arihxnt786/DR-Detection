@@ -48,22 +48,22 @@ This project uses a 224x224 pre-resized variant of the **APTOS 2019 Blindness De
 
 ```
 DR-Detection-Project/
-├── preprocess.py              # Data loading, preprocessing, visualization
-├── train_model.py             # CNN architecture, training, evaluation
-├── model.py                   # Loads trained model, runs predictions
-├── app.py                     # Flask application and routes
-├── requirements.txt           # Python dependencies
-├── README.md                  # This file
-├── dr_model_best.keras        # Trained model (generated after training)
-├── predictions_history.json   # Auto-generated prediction history
+├── preprocess.py
+├── train_model.py
+├── model.py
+├── app.py
+├── requirements.txt
+├── README.md
+├── dr_model_best.keras
+├── predictions_history.json
 ├── templates/
-│   ├── index.html             # Home page (upload interface)
-│   └── result.html            # Prediction results page
+│   ├── index.html
+│   └── result.html
 ├── static/
 │   ├── css/
-│   │   └── style.css          # Application stylesheet
-│   └── uploads/                # Uploaded images stored here
-└── train_images/               # Dataset (not included — see Dataset section)
+│   │   └── style.css
+│   └── uploads/
+└── train_images/
 ```
 
 ---

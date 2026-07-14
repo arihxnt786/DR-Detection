@@ -1,9 +1,3 @@
-"""
-preprocess.py
-Diabetic Retinopathy Detection Web App - Data Preprocessing Module
-Week 1 (Days 1-7)
-"""
-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +6,6 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical
 
-# ---------- Configuration ----------
 IMAGE_DIR = 'train_images/'
 IMG_SIZE = (224, 224)
 
@@ -27,26 +20,17 @@ CLASS_MAP = {
 CLASS_NAMES = list(CLASS_MAP.keys())
 CLASS_COLORS = ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#8b0000']
 
-
 def load_image(img_path, size=IMG_SIZE):
-    """Load a single image, convert to RGB, resize if needed."""
     img = Image.open(img_path)
     img = img.convert('RGB')
     if img.size != size:
         img = img.resize(size)
     return np.array(img)
 
-
 def normalize_image(img_array):
-    """Scale pixel values from 0-255 to 0-1."""
     return img_array.astype('float32') / 255.0
 
-
 def preprocess_dataset(base_dir=IMAGE_DIR, size=IMG_SIZE, limit_per_class=None):
-    """
-    Walk through all class folders, load + preprocess images,
-    and return (images, labels, class_counts) as NumPy arrays + dict.
-    """
     images = []
     labels = []
     class_counts = {}
@@ -77,9 +61,7 @@ def preprocess_dataset(base_dir=IMAGE_DIR, size=IMG_SIZE, limit_per_class=None):
 
     return np.array(images), np.array(labels), class_counts
 
-
 def split_and_encode(X, y, test_size=0.2, num_classes=5):
-    """Split into train/test sets and one-hot encode labels."""
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=42, stratify=y
     )
@@ -87,9 +69,7 @@ def split_and_encode(X, y, test_size=0.2, num_classes=5):
     y_test_encoded = to_categorical(y_test, num_classes=num_classes)
     return X_train, X_test, y_train_encoded, y_test_encoded, y_train, y_test
 
-
 def plot_class_distribution(class_counts, save_path='grade_distribution.png'):
-    """Bar chart of image count per DR grade."""
     counts = [class_counts.get(name, 0) for name in CLASS_NAMES]
 
     plt.figure(figsize=(9, 6))
@@ -106,9 +86,7 @@ def plot_class_distribution(class_counts, save_path='grade_distribution.png'):
     plt.savefig(save_path)
     plt.show()
 
-
 def plot_sample_images(base_dir=IMAGE_DIR, save_path='sample_images.png'):
-    """Display one sample image from each class side by side."""
     fig, axes = plt.subplots(1, 5, figsize=(20, 5))
 
     for idx, (folder_name, label) in enumerate(CLASS_MAP.items()):
@@ -125,7 +103,6 @@ def plot_sample_images(base_dir=IMAGE_DIR, save_path='sample_images.png'):
     plt.tight_layout()
     plt.savefig(save_path)
     plt.show()
-
 
 if __name__ == "__main__":
     print("Starting preprocessing pipeline...\n")

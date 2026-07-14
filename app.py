@@ -1,9 +1,3 @@
-"""
-app.py
-Diabetic Retinopathy Detection - Flask Web Application
-Week 3 (Days 17-21)
-"""
-
 from flask import Flask, render_template, request
 import os
 import json
@@ -19,7 +13,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 HISTORY_FILE = BASE_DIR / 'predictions_history.json'
 MAX_HISTORY = 6
 app.config['UPLOAD_FOLDER'] = str(UPLOAD_FOLDER)
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB upload limit
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 
 GRADE_INFO = {
@@ -63,15 +57,11 @@ CLASS_COLORS = {
     'Proliferate_DR': '#FF6B5B'
 }
 
-
 def allowed_file(filename):
-    """Check the uploaded file has an accepted image extension."""
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 def load_history():
-    """Load the recent predictions history from a simple JSON file."""
     if not os.path.exists(HISTORY_FILE):
         return []
     try:
@@ -80,9 +70,7 @@ def load_history():
     except (json.JSONDecodeError, IOError):
         return []
 
-
 def save_to_history(entry):
-    """Add a new prediction to the history, keeping only the most recent MAX_HISTORY entries."""
     history = load_history()
     history.insert(0, entry)
     history = history[:MAX_HISTORY]
@@ -90,9 +78,8 @@ def save_to_history(entry):
         with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
             json.dump(history, f, indent=2)
     except IOError:
-        pass  # history is a nice-to-have, never let it break the main flow
+        pass
     return history
-
 
 @app.errorhandler(413)
 def file_too_large(e):
@@ -101,12 +88,10 @@ def file_too_large(e):
         413
     )
 
-
 @app.route('/')
 def home():
     recent_predictions = load_history()
     return render_template('index.html', recent_predictions=recent_predictions)
-
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -125,17 +110,11 @@ def upload():
         )
 
     try:
-        # Use a unique filename per upload (timestamp-based) so repeated
-        # uploads of the same filename never overwrite or clash with a
-        # previous prediction still being displayed to the user.
         ext = file.filename.rsplit('.', 1)[1].lower()
         unique_name = f"{int(time.time() * 1000)}.{ext}"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
         file.save(filepath)
 
-        # Extra safety: confirm the saved file can actually be opened as
-        # an image before running it through the model (catches corrupted
-        # or mislabeled files that pass the extension check above).
         from PIL import Image
         try:
             with Image.open(filepath) as test_img:
@@ -175,7 +154,6 @@ def upload():
 
     except Exception as e:
         return f"An error occurred while processing the image: {str(e)}", 500
-
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
