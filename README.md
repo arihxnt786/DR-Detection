@@ -87,6 +87,6 @@ This project demonstrates computer vision, deep learning, image preprocessing, m
 
 ## Author
 
-**Arihant** — BCA student at JIIT Delhi
+**Arihant Gupta** — BCA student at JIIT Noida
 
 [GitHub](https://github.com/arihxnt786)
